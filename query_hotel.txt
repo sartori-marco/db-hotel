@@ -1,0 +1,76 @@
+1) Conta gli ospiti raggruppandoli per anno di nascita
+
+SELECT YEAR(`date_of_birth`) AS 'data_nascita', COUNT(`id`) AS 'persone' FROM `ospiti` GROUP BY YEAR(`date_of_birth`)
+
+
+
+2) Somma i prezzi dei pagamenti raggruppandoli per status.
+
+SELECT `status`, SUM(`price`) AS 'prezzo' 
+FROM `pagamenti` GROUP BY `status`
+
+
+
+3) Conta quante volte è stata prenotata ogni stanza
+
+SELECT `stanze`.`room_number` AS 'numero_stanza', COUNT(`prenotazioni`.`stanza_id`) AS 'prenotazioni' 
+FROM `prenotazioni` 
+INNER JOIN `stanze` 
+ON `stanze`.`id` = `prenotazioni`.`stanza_id` 
+GROUP BY `stanze`.`room_number`
+
+
+
+4) Fai un’analisi per vedere se ci sono ore in cui le prenotazioni sono più frequenti
+
+SELECT HOUR(`created_at`) AS momento_prenotazione, COUNT(`id`) AS 'conteggio_prenotazioni' 
+FROM `prenotazioni` GROUP BY HOUR(`created_at`)
+
+
+
+5) Stampare tutti gli ospiti per ogni prenotazione
+
+SELECT `prenotazioni_has_ospiti`.`id` , `ospiti`.`name`, `ospiti`.`lastname` 
+FROM `prenotazioni_has_ospiti` 
+INNER JOIN `ospiti` ON `ospiti`.`id` = `prenotazioni_has_ospiti`.`ospite_id` ORDER BY `prenotazioni_has_ospiti`.`id`
+
+
+
+6) Stampare Nome, Cognome, Prezzo del Pagante per tutte le prenotazioni fatte a Maggio 2018
+
+SELECT `ospiti`.`name`, `ospiti`.`lastname`, `pagamenti`.`price` 
+FROM `prenotazioni` 
+INNER JOIN `prenotazioni_has_ospiti` 
+ON `prenotazioni_has_ospiti`.`prenotazione_id` = `prenotazioni`.`id` 
+INNER JOIN `ospiti` 
+ON `ospiti`.`id` = `prenotazioni_has_ospiti`.`ospite_id` 
+INNER JOIN `paganti` 
+ON `paganti`.`ospite_id` = `ospiti`.`id` 
+INNER JOIN `pagamenti` 
+ON `pagamenti`.`pagante_id` = `paganti`.`id` 
+WHERE MONTH(`prenotazioni`.`created_at`) = 05 AND YEAR(`prenotazioni`.`created_at`) = 2018
+
+
+
+7) Fai la somma di tutti i prezzi delle prenotazioni per le stanze del primo piano
+
+SELECT SUM(`pagamenti`.`price`) 
+FROM `prenotazioni` 
+INNER JOIN `stanze`
+ON `stanze`.`id` = `prenotazioni`.`stanza_id` 
+INNER JOIN `pagamenti` 
+ON `prenotazioni`.`id` = `pagamenti`.`prenotazione_id` 
+WHERE `stanze`.`floor` = 1
+
+
+
+
+8) Prendi i dati di fatturazione per la prenotazione con id=7 (nome, cognome, indirizzo, stato pagamento, prezzo)
+SELECT `prenotazioni`.`id`, `paganti`.`name`, `paganti`.`lastname`,`paganti`.`address`, `pagamenti`.`status`, `pagamenti`.`price` 
+FROM `pagamenti` 
+INNER JOIN `prenotazioni` 
+ON `prenotazioni`.`id` = `pagamenti`.`prenotazione_id` 
+INNER JOIN `paganti` 
+ON `paganti`.`id` = `pagamenti`.`pagante_id` 
+WHERE `prenotazioni`.`id` = 7
+
